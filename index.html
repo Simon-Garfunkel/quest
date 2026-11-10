@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Text Adventure</title>
+    <style>
+        /* This CSS makes it look like a classic retro terminal game */
+        body {
+            background-color: #121212;
+            color: #33ff33;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #game-text {
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        #input-container {
+            display: flex;
+        }
+        #prompt-symbol {
+            margin-right: 10px;
+        }
+        input {
+            background: transparent;
+            border: none;
+            color: #33ff33;
+            font-family: inherit;
+            font-size: 16px;
+            outline: none;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This is where the game narrative appears -->
+    <div id="game-text">You wake up in a dark room. There is a door to the NORTH and a rusty chest to the EAST.
+What do you do?</div>
+
+    <!-- This is the prompt where the player types -->
+    <div id="input-container">
+        <span id="prompt-symbol">&gt;</span>
+        <input type="text" id="player-input" autofocus placeholder="type your command here...">
+    </div>
+
+    <script>
+        const playerInput = document.getElementById('player-input');
+        const gameText = document.getElementById('game-text');
+
+        // This listens for when the player presses the 'Enter' key
+        playerInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const command = playerInput.value.trim().toLowerCase();
+                playerInput.value = ''; // Clear the input box
+                
+                processCommand(command);
+            }
+        });
+
+        // This function handles the game logic based on what the player types
+        function processCommand(cmd) {
+            if (cmd === 'go north') {
+                gameText.innerText += "\n\n> " + cmd + "\nYou open the heavy wooden door and step out into a long hallway.";
+            } else if (cmd === 'look chest' || cmd === 'open chest') {
+                gameText.innerText += "\n\n> " + cmd + "\nThe chest is locked, but you see something shiny underneath it.";
+            } else if (cmd === '') {
+                // Do nothing if they press enter on a blank input
+            } else {
+                gameText.innerText += "\n\n> " + cmd + "\nI don't understand how to do that.";
+            }
+
+            // Automatically scroll to the bottom so they can see new text
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
