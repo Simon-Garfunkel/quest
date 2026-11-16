@@ -1,161 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simon & Garfunkel Adventure</title>
-  <style>
-    /* Classic retro terminal styling */
-    body {
-      background-color: #111;
-      color: #33ff33;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 40px;
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    #story-box {
-      border: 1px solid #33ff33;
-      padding: 20px;
-      min-height: 150px;
-      margin-bottom: 20px;
-      background-color: #0a0a0a;
-    }
-
-    .input-area {
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      background-color: #000;
-      color: #33ff33;
-      border: 1px solid #33ff33;
-      padding: 10px;
-      font-family: inherit;
-      font-size: 16px;
-      flex-grow: 1;
-      outline: none;
-    }
-
-    button {
-      background-color: #33ff33;
-      color: #000;
-      border: none;
-      padding: 10px 20px;
-      font-family: inherit;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #28cc28;
-    }
-
-    #feedback {
-      margin-top: 15px;
-      color: #ff4444;
-      min-height: 24px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Simon & Garfunkel Adventure</title>
+<style>
+  /* Classic retro terminal styling */
+  body {
+    background-color: #111;
+    color: #33ff33;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    box-sizing: border-box;
+  }
+  #story-box {
+    border: 1px solid #33ff33;
+    padding: 20px;
+    min-height: 150px;
+    margin-bottom: 20px;
+    background-color: #0a0a0a;
+    box-sizing: border-box;
+  }
+  .input-area {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  input[type="text"] {
+    background-color: #000;
+    color: #33ff33;
+    border: 1px solid #33ff33;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+    flex-grow: 1;
+    outline: none;
+    min-width: 0;
+  }
+  button {
+    background-color: #33ff33;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #28cc28;
+  }
+  #feedback {
+    margin-top: 15px;
+    color: #ff4444;
+    min-height: 24px;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Where the story text appears -->
-  <div id="story-box"></div>
+<!-- Where the story text appears -->
+<div id="story-box"></div>
 
-  <!-- Input controls -->
-  <div class="input-area" id="controls">
-    <input type="text" id="code-input" placeholder="Enter confirmation code..." autocomplete="off">
-    <button id="submit-btn">ENTER</button>
-  </div>
+<!-- Input controls -->
+<div class="input-area" id="controls">
+  <input type="text" id="code-input" placeholder="Enter confirmation code..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+  <button id="submit-btn">ENTER</button>
+</div>
 
-  <!-- Error or status messages -->
-  <div id="feedback"></div>
+<!-- Error or status messages -->
+<div id="feedback"></div>
 
-  <script>
-    // 1. DEFINE YOUR 5 STAGES HERE
-    const stages = [
-      {
-        text: "Say password #1 over the phone (no texting allowed): typethisintwicealluppercaseNOspacesLOWERCASE",
-        code: "art"
-      },
-      {
-        text: "Say password #2 over the phone (no texting allowed): EnterTheWords485then-colonTHENUMBERtwo",
-        code: "boxer"
-      },
-      {
-        text: "Say password #3 over the phone (no texting allowed): CarrotCaretKarrritThenTheSymbol^",
-        code: "groovy"
-      },
-      {
-        text: "Say password #4 over the phone (no texting allowed): .dot,comma..commaTHEWORDcommaINQUOTES",
-        code: "homeward"
-      },
-      {
-        text: "Say password #5 over the phone (no texting allowed): Under_and_Score_wordsseperatedbyhyphens",
-        code: "silence"
-      }
-    ];
+<script>
+// 1. DEFINE YOUR 5 STAGES HERE
+const stages = [
+  { text: "Say password #1 over the phone (no texting allowed): typethisintwicealluppercaseNOspacesLOWERCASE", code: "art" },
+  { text: "Say password #2 over the phone (no texting allowed): EnterTheWords485then-colonTHENUMBERtwo", code: "boxer" },
+  { text: "Say password #3 over the phone (no texting allowed): CarrotCaretKarrritThenTheSymbol^", code: "groovy" },
+  { text: "Say password #4 over the phone (no texting allowed): .dot,comma..commaTHEWORDcommaINQUOTES", code: "homeward" },
+  { text: "Say password #5 over the phone (no texting allowed): Under_and_Score_wordsseperatedbyhyphens", code: "silence" }
+];
 
-    // Text shown after beating all 5 stages
-    const victoryText = "CONGRATULATIONS! You got them all.";
+// Text shown after beating all 5 stages
+const victoryText = "CONGRATULATIONS! You got them all.";
 
-    // 2. GAME STATE & HTML ELEMENTS
-    let currentStage = 0;
+// 2. GAME STATE & HTML ELEMENTS
+let currentStage = 0;
+const storyBox = document.getElementById("story-box");
+const codeInput = document.getElementById("code-input");
+const submitBtn = document.getElementById("submit-btn");
+const feedback = document.getElementById("feedback");
+const controls = document.getElementById("controls");
 
-    const storyBox = document.getElementById("story-box");
-    const codeInput = document.getElementById("code-input");
-    const submitBtn = document.getElementById("submit-btn");
-    const feedback = document.getElementById("feedback");
-    const controls = document.getElementById("controls");
+// 3. GAME FUNCTIONS
+function loadStage() {
+  if (currentStage < stages.length) {
+    storyBox.textContent = stages[currentStage].text;
+    codeInput.value = "";
+    // Avoid forcing .focus() on iPhone immediately to prevent unwanted keyboard popups or scrolling issues, but keep it if user wants:
+    // codeInput.focus();
+  } else {
+    // End of the 5-stage sequence
+    storyBox.textContent = victoryText;
+    controls.style.display = "none"; // Hide input box when finished
+    feedback.textContent = "";
+  }
+}
 
-    // 3. GAME FUNCTIONS
-    function loadStage() {
-      if (currentStage < stages.length) {
-        storyBox.textContent = stages[currentStage].text;
-        codeInput.value = "";
-        codeInput.focus();
-      } else {
-        // End of the 5-stage sequence
-        storyBox.textContent = victoryText;
-        controls.style.display = "none"; // Hide input box when finished
-        feedback.textContent = "";
-      }
-    }
-
-    function checkCode() {
-      // Clean up the user's input (remove extra spaces, make lowercase)
-      const userGuess = codeInput.value.trim().toLowerCase();
-      const correctCode = stages[currentStage].code.toLowerCase();
-
-      if (userGuess === correctCode) {
-        feedback.textContent = "";
-        currentStage++; // Move to the next stage
-        loadStage();
-      } else {
-        feedback.textContent = "Incorrect code word. Try again.";
-        codeInput.value = "";
-        codeInput.focus();
-      }
-    }
-
-    // 4. EVENT LISTENERS (Click button or press Enter key)
-    submitBtn.addEventListener("click", checkCode);
-
-    codeInput.addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        checkCode();
-      }
-    });
-
-    // Start the game on page load
+function checkCode() {
+  // Clean up the user's input (remove extra spaces, make lowercase)
+  const userGuess = codeInput.value.trim().toLowerCase();
+  const correctCode = stages[currentStage].code.toLowerCase();
+  
+  if (userGuess === correctCode) {
+    feedback.textContent = "";
+    currentStage++; // Move to the next stage
     loadStage();
-  </script>
+  } else {
+    feedback.textContent = "Incorrect code word. Try again.";
+    codeInput.value = "";
+    codeInput.focus();
+  }
+}
+
+// 4. EVENT LISTENERS (Click button or press Enter key)
+submitBtn.addEventListener("click", checkCode);
+codeInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    checkCode();
+  }
+});
+
+// Start the game on page load
+loadStage();
+</script>
 
 </body>
 </html>
-
