@@ -1,45 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Password</title>
-    <style>
-        /* This CSS makes it look like a classic retro terminal game */
-        body {
-            background-color: #121212;
-            color: #33ff33;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 40px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        #game-text {
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-        #input-container {
-            display: flex;
-        }
-        #prompt-symbol {
-            margin-right: 10px;
-        }
-        input {
-            background: transparent;
-            border: none;
-            color: #33ff33;
-            font-family: inherit;
-            font-size: 16px;
-            outline: none;
-            flex-grow: 1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Terminal Adventure</title>
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #33ff33;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 40px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    #terminal {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    /* --- 1. ADDED HERE: Preserves your multi-line spacing --- */
+    #log {
+      white-space: pre-wrap;
+    }
+    .input-line {
+      display: flex;
+      margin-top: 15px;
+    }
+    .prompt-symbol {
+      margin-right: 10px;
+    }
+    input {
+      background: transparent;
+      border: none;
+      color: #33ff33;
+      font-family: inherit;
+      font-size: inherit;
+      outline: none;
+      width: 100%;
+    }
+    .error {
+      color: #ff4444;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- This is where the game narrative appears -->
-    <div id="game-text">The Password is: Luke22</div>
+<div id="terminal">
+  <div id="log"></div>
+  <div class="input-line" id="input-container">
+    <span class="prompt-symbol">&gt;</span>
+    <input type="text" id="command-input" autofocus autocomplete="off" placeholder="Enter confirmation password...">
+  </div>
+</div>
+
+<script>
+  // --- 2. UPDATED HERE: Using backticks (`) for multi-line stories ---
+  const stages = [
+    {
+      story: `PASSWORD #1
+      
+typethisintwicealluppercaseNOspacesLOWERCASE
+
+Type code word from teammates when password is accepted`,
+      password: "silence"
+    },
+    {
+      story: `PASSWORD #2
+
+.dot,comma..commaTHEWORDcommaINQUOTES
+
+Type code word from teammates when password is accepted `,
+      password: "groovy"
+    },
+    {
+      story: `PASSWORD #3
+      
+EnterTheWords:485then-colonTHENUMBERtwo
+
+Type code word from teammates when password is accepted`,
+      password: "boxer"
+    },
+    {
+      story: `PASSWORD #4
+      
+CarrotCaretKarrritThenTheSymbol^
+
+Type code word from teammates when password is accepted.`,
+      password: "sage"
+    }    
+    {
+      story: `PASSWORD #5
+      
+Under_and_Score_wordsseperatedbyhyphens
+
+Type code word from teammates when password is accepted.`,
+      password: "Art"
+    }
+  ];
+
+  let currentStep = 0;
+
+  const log = document.getElementById("log");
+  const input = document.getElementById("command-input");
+  const inputContainer = document.getElementById("input-container");
+
+  function printLine(text, className = "") {
+    const p = document.createElement("p");
+    p.textContent = text;
+    if (className) p.className = className;
+    log.appendChild(p);
+  }
+
+  printLine(stages[currentStep].story);
+
+  input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      const userGuess = input.value.trim();
+      input.value = "";
+
+      printLine("> " + userGuess);
+
+      if (userGuess.toUpperCase() === stages[currentStep].password.toUpperCase()) {
+        printLine("ACCESS GRANTED.");
+        currentStep++;
+
+        if (currentStep < stages.length) {
+          printLine("----------------------------------------");
+          printLine(stages[currentStep].story);
+        } else {
+          printLine("----------------------------------------");
+          printLine("CONGRATULATIONS!!!");
+          inputContainer.style.display = "none";
+        }
+      } else {
+        printLine("Incorrect code word. Try again.", "error");
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
