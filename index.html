@@ -16,12 +16,11 @@
       max-width: 700px;
       margin: 0 auto;
     }
-    /* --- 1. ADDED HERE: Preserves your multi-line spacing --- */
     #log {
       white-space: pre-wrap;
     }
     .input-line {
-      display: flex;
+      display: none; /* Hidden by default until text finishes printing */
       margin-top: 15px;
     }
     .prompt-symbol {
@@ -47,72 +46,97 @@
   <div id="log"></div>
   <div class="input-line" id="input-container">
     <span class="prompt-symbol">&gt;</span>
-    <input type="text" id="command-input" autofocus autocomplete="off" placeholder="Enter confirmation password...">
+    <input type="text" id="command-input" autocomplete="off" placeholder="Enter confirmation password...">
   </div>
 </div>
 
 <script>
-  // --- 2. UPDATED HERE: Using backticks (`) for multi-line stories ---
   const stages = [
     {
-      story: `PASSWORD #1
-      
-typethisintwicealluppercaseNOspacesLOWERCASE
+      story: `SECURITY CHECK 1 OF 4
+The heavy blast door hisses as steam vents from the ceiling.
+A dusty terminal flickers to life in front of you.
 
-Type code word from teammates when password is accepted`,
-      password: "silence"
+SYSTEM: Enter the Sector A override code.`,
+      password: "ALPHA"
     },
     {
-      story: `PASSWORD #2
+      story: `SECURITY CHECK 2 OF 4
+Primary locks disengaged. Red warning lights begin to flash.
+The floor vibrates beneath your boots.
 
-.dot,comma..commaTHEWORDcommaINQUOTES
-
-Type code word from teammates when password is accepted `,
-      password: "groovy"
+SYSTEM: Enter the Coolant Core passcode.`,
+      password: "BRAVO"
     },
     {
-      story: `PASSWORD #3
-      
-EnterTheWords:485then-colonTHENUMBERtwo
+      story: `SECURITY CHECK 3 OF 4
+Warning! Auxiliary power routing to main bulkhead.
+Temperature rising rapidly.
 
-Type code word from teammates when password is accepted`,
-      password: "boxer"
+SYSTEM: Confirm manual override.`,
+      password: "CHARLIE"
     },
     {
-      story: `PASSWORD #4
-      
-CarrotCaretKarrritThenTheSymbol^
+      story: `SECURITY CHECK 4 OF 4
+Final seal reached. Only one heavy deadbolt remains.
 
-Type code word from teammates when password is accepted.`,
-      password: "sage"
-    }    
-    {
-      story: `PASSWORD #5
-      
-Under_and_Score_wordsseperatedbyhyphens
-
-Type code word from teammates when password is accepted.`,
-      password: "Art"
+SYSTEM: Enter Commander authorization.`,
+      password: "DELTA"
     }
   ];
 
   let currentStep = 0;
+  let isTyping = false;
 
   const log = document.getElementById("log");
   const input = document.getElementById("command-input");
   const inputContainer = document.getElementById("input-container");
 
+  // Instant print for system responses and user echoes
   function printLine(text, className = "") {
     const p = document.createElement("p");
     p.textContent = text;
     if (className) p.className = className;
     log.appendChild(p);
+    window.scrollTo(0, document.body.scrollHeight);
   }
 
-  printLine(stages[currentStep].story);
+  // Typewriter print that hides the prompt until the story is done
+  function typeStory(text, onComplete) {
+    isTyping = true;
+    inputContainer.style.display = "none"; // Hide prompt while printing
+
+    const p = document.createElement("p");
+    log.appendChild(p);
+
+    let index = 0;
+    const speed = 25; // Speed in milliseconds per letter (lower = faster)
+
+    const timer = setInterval(() => {
+      p.textContent += text.charAt(index);
+      index++;
+      window.scrollTo(0, document.body.scrollHeight);
+
+      if (index >= text.length) {
+        clearInterval(timer);
+        isTyping = false;
+        if (onComplete) onComplete();
+      }
+    }, speed);
+  }
+
+  // Show the input box and focus the cursor
+  function showPrompt() {
+    inputContainer.style.display = "flex";
+    input.focus();
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  // Start the first stage
+  typeStory(stages[currentStep].story, showPrompt);
 
   input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !isTyping) {
       const userGuess = input.value.trim();
       input.value = "";
 
@@ -124,14 +148,14 @@ Type code word from teammates when password is accepted.`,
 
         if (currentStep < stages.length) {
           printLine("----------------------------------------");
-          printLine(stages[currentStep].story);
+          // Print the next story, then show the prompt once finished
+          typeStory(stages[currentStep].story, showPrompt);
         } else {
           printLine("----------------------------------------");
-          printLine("CONGRATULATIONS!!!");
-          inputContainer.style.display = "none";
+          typeStory("ALL 4 SECURITY CHECKS PASSED. THE VAULT DOOR OPENS!");
         }
       } else {
-        printLine("Incorrect code word. Try again.", "error");
+        printLine("ACCESS DENIED. Incorrect password. Try again.", "error");
       }
     }
   });
