@@ -2,164 +2,170 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Terminal Adventure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Adventure Sequence</title>
   <style>
+    /* Classic retro terminal styling */
     body {
-      background-color: #0d0d0d;
+      background-color: #111;
       color: #33ff33;
       font-family: 'Courier New', Courier, monospace;
       padding: 40px;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-    #terminal {
       max-width: 700px;
       margin: 0 auto;
+      line-height: 1.6;
     }
-    #log {
-      white-space: pre-wrap;
+
+    #story-box {
+      border: 1px solid #33ff33;
+      padding: 20px;
+      min-height: 150px;
+      margin-bottom: 20px;
+      background-color: #0a0a0a;
     }
-    .input-line {
-      display: none; /* Hidden by default until text finishes printing */
-      margin-top: 15px;
+
+    .input-area {
+      display: flex;
+      gap: 10px;
     }
-    .prompt-symbol {
-      margin-right: 10px;
-    }
-    input {
-      background: transparent;
-      border: none;
+
+    input[type="text"] {
+      background-color: #000;
       color: #33ff33;
+      border: 1px solid #33ff33;
+      padding: 10px;
       font-family: inherit;
-      font-size: inherit;
+      font-size: 16px;
+      flex-grow: 1;
       outline: none;
-      width: 100%;
     }
-    .error {
+
+    button {
+      background-color: #33ff33;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #28cc28;
+    }
+
+    #feedback {
+      margin-top: 15px;
       color: #ff4444;
+      min-height: 24px;
     }
   </style>
 </head>
 <body>
 
-<div id="terminal">
-  <div id="log"></div>
-  <div class="input-line" id="input-container">
-    <span class="prompt-symbol">&gt;</span>
-    <input type="text" id="command-input" autocomplete="off" placeholder="Enter confirmation password...">
+  <!-- Where the story text appears -->
+  <div id="story-box"></div>
+
+  <!-- Input controls -->
+  <div class="input-area" id="controls">
+    <input type="text" id="code-input" placeholder="Enter code word..." autocomplete="off">
+    <button id="submit-btn">ENTER</button>
   </div>
-</div>
 
-<script>
-  const stages = [
-    {
-      story: `SECURITY CHECK 1 OF 4
-The heavy blast door hisses as steam vents from the ceiling.
-A dusty terminal flickers to life in front of you.
+  <!-- Error or status messages -->
+  <div id="feedback"></div>
 
-SYSTEM: Enter the Sector A override code.`,
-      password: "ALPHA"
-    },
-    {
-      story: `SECURITY CHECK 2 OF 4
-Primary locks disengaged. Red warning lights begin to flash.
-The floor vibrates beneath your boots.
-
-SYSTEM: Enter the Coolant Core passcode.`,
-      password: "BRAVO"
-    },
-    {
-      story: `SECURITY CHECK 3 OF 4
-Warning! Auxiliary power routing to main bulkhead.
-Temperature rising rapidly.
-
-SYSTEM: Confirm manual override.`,
-      password: "CHARLIE"
-    },
-    {
-      story: `SECURITY CHECK 4 OF 4
-Final seal reached. Only one heavy deadbolt remains.
-
-SYSTEM: Enter Commander authorization.`,
-      password: "DELTA"
-    }
-  ];
-
-  let currentStep = 0;
-  let isTyping = false;
-
-  const log = document.getElementById("log");
-  const input = document.getElementById("command-input");
-  const inputContainer = document.getElementById("input-container");
-
-  // Instant print for system responses and user echoes
-  function printLine(text, className = "") {
-    const p = document.createElement("p");
-    p.textContent = text;
-    if (className) p.className = className;
-    log.appendChild(p);
-    window.scrollTo(0, document.body.scrollHeight);
-  }
-
-  // Typewriter print that hides the prompt until the story is done
-  function typeStory(text, onComplete) {
-    isTyping = true;
-    inputContainer.style.display = "none"; // Hide prompt while printing
-
-    const p = document.createElement("p");
-    log.appendChild(p);
-
-    let index = 0;
-    const speed = 25; // Speed in milliseconds per letter (lower = faster)
-
-    const timer = setInterval(() => {
-      p.textContent += text.charAt(index);
-      index++;
-      window.scrollTo(0, document.body.scrollHeight);
-
-      if (index >= text.length) {
-        clearInterval(timer);
-        isTyping = false;
-        if (onComplete) onComplete();
+  <script>
+    // 1. DEFINE YOUR 5 STAGES HERE
+    const stages = [
+      {
+        text: "STAGE 1: You stand before an iron gate. Carved into the stone arch is a riddle: 'I speak without a mouth and hear without ears. What am I?'",
+        code: "echo"
+      },
+      {
+        text: "STAGE 2: The gate swings open. Inside a dimly lit hall, a pedestal holds a brass key. A whisper asks for the metal of the key.",
+        code: "brass"
+      },
+      {
+        text: "STAGE 3: You unlock the heavy oak door. Beyond it lies a chasm. A floating sign reads: 'Say the opposite of night to cross.'",
+        code: "day"
+      },
+      {
+        text: "STAGE 4: Safe on the other side, a sleeping dragon blocks the stairs. On its collar is a tag reading '7 x 6'. Speak the answer.",
+        code: "42"
+      },
+      {
+        text: "STAGE 5: You reach the top of the tower. A final terminal blinks on the wall: 'SYSTEM LOCKED. ENTER OVERRIDE WORD: OMEGA'",
+        code: "omega"
       }
-    }, speed);
-  }
+    ];
 
-  // Show the input box and focus the cursor
-  function showPrompt() {
-    inputContainer.style.display = "flex";
-    input.focus();
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+    // Text shown after beating all 5 stages
+    const victoryText = "CONGRATULATIONS! You entered all five code words and escaped the dungeon.";
 
-  // Start the first stage
-  typeStory(stages[currentStep].story, showPrompt);
+    // 2. GAME STATE & HTML ELEMENTS
+    let currentStage = 0;
 
-  input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter" && !isTyping) {
-      const userGuess = input.value.trim();
-      input.value = "";
+    const storyBox = document.getElementById("story-box");
+    const codeInput = document.getElementById("code-input");
+    const submitBtn = document.getElementById("submit-btn");
+    const feedback = document.getElementById("feedback");
+    const controls = document.getElementById("controls");
 
-      printLine("> " + userGuess);
-
-      if (userGuess.toUpperCase() === stages[currentStep].password.toUpperCase()) {
-        printLine("ACCESS GRANTED.");
-        currentStep++;
-
-        if (currentStep < stages.length) {
-          printLine("----------------------------------------");
-          // Print the next story, then show the prompt once finished
-          typeStory(stages[currentStep].story, showPrompt);
-        } else {
-          printLine("----------------------------------------");
-          typeStory("ALL 4 SECURITY CHECKS PASSED. THE VAULT DOOR OPENS!");
-        }
+    // 3. GAME FUNCTIONS
+    function loadStage() {
+      if (currentStage < stages.length) {
+        storyBox.textContent = stages[currentStage].text;
+        codeInput.value = "";
+        codeInput.focus();
       } else {
-        printLine("ACCESS DENIED. Incorrect password. Try again.", "error");
+        // End of the 5-stage sequence
+        storyBox.textContent = victoryText;
+        controls.style.display = "none"; // Hide input box when finished
+        feedback.textContent = "";
       }
     }
-  });
-</script>
+
+    function checkCode() {
+      // Clean up the user's input (remove extra spaces, make lowercase)
+      const userGuess = codeInput.value.trim().toLowerCase();
+      const correctCode = stages[currentStage].code.toLowerCase();
+
+      if (userGuess === correctCode) {
+        feedback.textContent = "";
+        currentStage++; // Move to the next stage
+        loadStage();
+      } else {
+        feedback.textContent = "ACCESS DENIED: Incorrect code word. Try again.";
+        codeInput.value = "";
+        codeInput.focus();
+      }
+    }
+
+    // 4. EVENT LISTENERS (Click button or press Enter key)
+    submitBtn.addEventListener("click", checkCode);
+
+    codeInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        checkCode();
+      }
+    });
+
+    // Start the game on page load
+    loadStage();
+  </script>
 
 </body>
 </html>
+Use code with caution.
+
+How It Works
+
+• Easy Customization: All your story prompts and passwords live inside the stages list at the top of the <script> tag. You can swap out the text and code words without changing anything else.
+• Forgiving Input: The checkCode() function uses .trim().toLowerCase() so players won't fail if they accidentally type a capital letter or an extra space.
+• Keyboard Friendly: Players can either click the ENTER button or press the Enter key on their keyboard to submit a guess.
+Would you like to add any extra features to this sequence, such as:
+• A typewriter text animation so the story prints out letter-by-letter?
+• A limited number of attempts before a "Game Over" screen?
+• A hint system that triggers after a few wrong guesses?
