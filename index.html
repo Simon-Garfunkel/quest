@@ -23,6 +23,19 @@
     margin-bottom: 20px;
     background-color: #0a0a0a;
     box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  .clue-line {
+    display: block;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #141414;
+    border-left: 3px solid #33ff33;
+    font-weight: bold;
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
   .input-area {
     display: flex;
@@ -35,7 +48,7 @@
     border: 1px solid #33ff33;
     padding: 10px;
     font-family: inherit;
-    font-size: 16px; /* Prevents iOS auto-zoom */
+    font-size: 16px;
     flex-grow: 1;
     outline: none;
     min-width: 0;
@@ -77,11 +90,31 @@
 <script>
 // 1. DEFINE YOUR 5 STAGES HERE
 const stages = [
-  { text: "Say password #1 over the phone (no texting allowed): typethisintwicealluppercaseNOspacesLOWERCASE", code: "art" },
-  { text: "Say password #2 over the phone (no texting allowed): EnterTheWords485then-colonTHENUMBERtwo", code: "boxer" },
-  { text: "Say password #3 over the phone (no texting allowed): CarrotCaretKarrritThenTheSymbol^", code: "groovy" },
-  { text: "Say password #4 over the phone (no texting allowed): .dot,comma..commaTHEWORDcommaINQUOTES", code: "homeward" },
-  { text: "Say password #5 over the phone (no texting allowed): Under_and_Score_wordsseperatedbyhyphens", code: "silence" }
+  { 
+    prompt: "Say password #1 over the phone (no texting allowed):", 
+    clue: "typethisintwicealluppercaseNOspacesLOWERCASE", 
+    code: "art" 
+  },
+  { 
+    prompt: "Say password #2 over the phone (no texting allowed):", 
+    clue: "EnterTheWords485then-colonTHENUMBERtwo", 
+    code: "boxer" 
+  },
+  { 
+    prompt: "Say password #3 over the phone (no texting allowed):", 
+    clue: "CarrotCaretKarrritThenTheSymbol^", 
+    code: "groovy" 
+  },
+  { 
+    prompt: "Say password #4 over the phone (no texting allowed):", 
+    clue: ".dot,comma..commaTHEWORDcommaINQUOTES", 
+    code: "homeward" 
+  },
+  { 
+    prompt: "Say password #5 over the phone (no texting allowed):", 
+    clue: "Under_and_Score_wordsseperatedbyhyphens", 
+    code: "silence" 
+  }
 ];
 
 // Text shown after beating all 5 stages
@@ -98,10 +131,19 @@ const controls = document.getElementById("controls");
 // 3. GAME FUNCTIONS
 function loadStage() {
   if (currentStage < stages.length) {
-    storyBox.textContent = stages[currentStage].text;
+    storyBox.innerHTML = "";
+    
+    const promptEl = document.createElement("div");
+    promptEl.textContent = stages[currentStage].prompt;
+    
+    const clueEl = document.createElement("div");
+    clueEl.className = "clue-line";
+    clueEl.textContent = stages[currentStage].clue;
+    
+    storyBox.appendChild(promptEl);
+    storyBox.appendChild(clueEl);
+    
     codeInput.value = "";
-    // Avoid forcing .focus() on iPhone immediately to prevent unwanted keyboard popups or scrolling issues, but keep it if user wants:
-    // codeInput.focus();
   } else {
     // End of the 5-stage sequence
     storyBox.textContent = victoryText;
